@@ -30,6 +30,7 @@ t1 = BashOperator(
 
 cypher_1 = Neo4jOperator(task_id='node_count',
                          cql="MATCH (n) RETURN count(n)",
+                         uri="bolt://neo-single-neo4j-core-0.neo-single-neo4j.default.svc.cluster.local:7687",
                          dag=dag)
 
 t1.set_upstream(cypher_1)

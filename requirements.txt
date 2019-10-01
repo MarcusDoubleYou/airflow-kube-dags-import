@@ -1,1 +1,2 @@
 neo4j
+apache-airflow==1.10.5
