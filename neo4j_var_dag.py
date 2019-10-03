@@ -29,16 +29,19 @@ t1 = BashOperator(
     bash_command='date',
     dag=dag)
 
+uri = Variable.get("neo4j_uri")
+pw = Variable.get('neo4j_pw'),
+
 cypher_set_up = Neo4jOperator(task_id='create_count',
                               cql="CREATE (c:Client) RETURN c ",
-                              uri=Variable.get("neo4j-uri"),
-                              pw=Variable.get('neo4j-pw'),
+                              uri=uri,
+                              pw=pw,
                               dag=dag)
 
 cypher_1 = Neo4jOperator(task_id='node_count',
                          cql="MATCH (n) RETURN count(n)",
-                         uri=Variable.get("neo4j-uri"),
-                         pw=Variable.get('neo4j-pw'),
+                         uri=uri,
+                         pw=pw,
                          dag=dag)
 
 cypher_1.set_upstream(cypher_set_up)
