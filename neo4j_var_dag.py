@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
+from airflow.models import Variable
 
 # from airflow.operators import Neo4jOperator
 # from plugins.CustomPlugins import Neo4jOperator
@@ -16,7 +17,7 @@ default_args = {
     'retries': 0,
     'retry_delay': timedelta(minutes=0)}
 
-dag = DAG('neo4j-1',
+dag = DAG('neo4j-2-vars',
           default_args=default_args,
           description='testing generic cypher',
           # schedule_interval=timedelta(days=1)
@@ -28,10 +29,17 @@ t1 = BashOperator(
     bash_command='date',
     dag=dag)
 
+cypher_set_up = Neo4jOperator(task_id='create_count',
+                              cql="CREATE (c:Client) RETURN c ",
+                              uri=Variable.get("neo4j-uri"),
+                              pw=Variable.get('neo4j-pw'),
+                              dag=dag)
+
 cypher_1 = Neo4jOperator(task_id='node_count',
                          cql="MATCH (n) RETURN count(n)",
-                         uri="bolt://neo-single-neo4j-core-0.neo-single-neo4j.default.svc.cluster.local:7687",
-                         pw="",
+                         uri=Variable.get("neo4j-uri"),
+                         pw=Variable.get('neo4j-pw'),
                          dag=dag)
 
+cypher_1.set_upstream(cypher_set_up)
 t1.set_upstream(cypher_1)
